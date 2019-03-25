@@ -1,0 +1,32 @@
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath 'org.springframework.boot:spring-boot-gradle-plugin:1.5.19.RELEASE'
+	}
+}
+
+plugins {
+	id 'java'
+}
+
+apply plugin: 'org.springframework.boot'
+
+group = 'com.crud'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	compile('org.springframework.boot:spring-boot-starter-web')
+	compile(group: 'org.springframework.data', name: 'spring-data-jpa')
+	compile('mysql:mysql-connector-java')
+	compile('org.projectlombok:lombok')
+	
+	testCompile('org.springframework.boot:spring-boot-starter-test')
+
+}
