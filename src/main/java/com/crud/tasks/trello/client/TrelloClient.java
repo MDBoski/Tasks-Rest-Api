@@ -31,9 +31,11 @@ public class TrelloClient {
     private RestTemplate restTemplate;
 
     public List<TrelloBoardDto> getTrelloBoards() {
- /*       TrelloBoardDto[] boardsResponse = restTemplate.getForObject(
-                trelloApiEndpoint + "members/kodillauser/boards" + "?key=" +trelloAppKey + "&token=" + trellAppToken,
-                TrelloBoardDto[].class);*/
+ /*
+        TrelloBoardDto[] boardsResponse = restTemplate.getForObject(
+        trelloApiEndpoint + "members/kodillauser/boards" + "?key=" +trelloAppKey + "&token=" + trellAppToken,
+        TrelloBoardDto[].class);
+ */
         URI url = UriComponentsBuilder.fromHttpUrl(trelloConfig.getTrelloApiEndpoint() + "/members/" + trelloConfig.getTrelloUsername() +"/boards")
                 .queryParam("key", trelloConfig.getTrelloAppKey())
                 .queryParam("token", trelloConfig.getTrelloToken())

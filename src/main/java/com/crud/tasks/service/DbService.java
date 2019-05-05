@@ -25,10 +25,11 @@ public class DbService {
     public void deleteTask (final Long id) {
         repository.delete(id);
     }
-
- //   public Task getTaskByID (final Long id) {
- //       return repository.findByID(id).orElse(null);
- //   }
+/*
+    public Task getTaskByID (final Long id) {
+    return repository.findByID(id).orElse(null);
+   }
+*/
 
     public Task saveTask (final Task task) {
         return repository.save(task);
