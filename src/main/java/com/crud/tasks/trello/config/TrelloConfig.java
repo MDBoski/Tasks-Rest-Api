@@ -4,10 +4,9 @@ import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-@Component
 @Getter
+@Component
 public class TrelloConfig {
-
     @Value("${trello.api.endpoint.prod}")
     private String trelloApiEndpoint;
 
@@ -17,6 +16,6 @@ public class TrelloConfig {
     @Value("${trello.app.token}")
     private String trelloToken;
 
-    @Value("${trello.app.username}")
+    @Value("${trello.api.username}")
     private String trelloUsername;
 }

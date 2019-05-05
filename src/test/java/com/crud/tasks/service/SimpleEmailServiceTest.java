@@ -4,12 +4,13 @@ import com.crud.tasks.domain.Mail;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.Mock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
-import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @RunWith(MockitoJUnitRunner.class)
 public class SimpleEmailServiceTest {
@@ -17,35 +18,29 @@ public class SimpleEmailServiceTest {
     @InjectMocks
     private SimpleEmailService simpleEmailService;
 
-    @Test
-    public void shouldSendDailyEmail() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    @Mock
+    private MailCreatorService mailCreatorService;
 
-        //Given
-        Mail mail = new Mail("test@test.com", "Test", "Test message");
-
-        EmailTemplateSelector template = EmailTemplateSelector.SCHEDULED_EMAIL;
-
-        Class<?>[] params1 = new Class<?>[]{Mail.class, EmailTemplateSelector.class};
-        Method cmm = simpleEmailService.getClass().getDeclaredMethod("createMimeMessage", params1);
-        cmm.setAccessible(true);
-
-        //when & then
-        assertNotNull(cmm.invoke(simpleEmailService, mail, template).equals(null));
-    }
+    @Mock
+    private JavaMailSender javaMailSender;
 
     @Test
-    public void shouldSendTrelloCardEmail() throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    public void shouldSendEmail() {
+        // Given
+        Mail mail = new Mail("MDJavaDeveloper@gmail.com", "Test50", "Test Message");
 
-        //Given
-        Mail mail = new Mail("test@test.com", "cctest@test.com", "Test", "Test message");
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(mail.getMailTo());
+        mailMessage.setSubject(mail.getSubject());
+        mailMessage.setText(mail.getMessage());
+ //       if (mailMessage.getCc() != null) {
+//            mailMessage.setCc(mail.getToCc());
+//        }
+//When
+        simpleEmailService.send(mail);
 
-        EmailTemplateSelector template = EmailTemplateSelector.TRELLO_CARD_EMAIL;
-
-        Class<?>[] params1 = new Class<?>[]{Mail.class, EmailTemplateSelector.class};
-        Method cmm = simpleEmailService.getClass().getDeclaredMethod("createMimeMessage", params1);
-        cmm.setAccessible(true);
-
-        //when & then
-        assertNotNull(cmm.invoke(simpleEmailService, mail, template).equals(null));
+// Then
+        verify(javaMailSender, times(0)).send(mailMessage);
     }
+
 }

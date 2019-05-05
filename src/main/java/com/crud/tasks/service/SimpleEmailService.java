@@ -11,12 +11,11 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 public class SimpleEmailService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleMailMessage.class);
+    private static  final Logger LOGGER = LoggerFactory.getLogger(SimpleMailMessage.class);
 
     @Autowired
     private JavaMailSender javaMailSender;
@@ -24,40 +23,44 @@ public class SimpleEmailService {
     @Autowired
     private MailCreatorService mailCreatorService;
 
-    public void send(final Mail mail, EmailTemplateSelector template) {
+    public void send(final Mail mail) {
+
         LOGGER.info("Starting email preparation...");
+
         try {
-            javaMailSender.send(createMimeMessage(mail, template));
+            javaMailSender.send(createMimeMessage(mail));
             LOGGER.info("Email has been sent.");
-        } catch (MailException e) {
+        }catch (MailException e) {
             LOGGER.error("Failed to process email sending: ", e.getMessage(), e);
         }
     }
 
-    private MimeMessagePreparator createMimeMessage(final Mail mail, EmailTemplateSelector template) {
+    private MimeMessagePreparator createMimeMessage(final Mail mail) {
         return mimeMessage -> {
             MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
             messageHelper.setTo(mail.getMailTo());
             messageHelper.setSubject(mail.getSubject());
-            messageHelper.setText(getMailHtmlTextForTemplateSelector(mail.getMessage(), template), true);
+            messageHelper.setText(mailCreatorService.buildTrelloCardEmail(mail.getMessage()), true);
         };
     }
 
-    private String getMailHtmlTextForTemplateSelector(String message, EmailTemplateSelector template) {
-        if (template == EmailTemplateSelector.SCHEDULED_EMAIL) {
-            return mailCreatorService.buildScheduledEmail(message);
-        } else if (template == EmailTemplateSelector.TRELLO_CARD_EMAIL) {
-            return mailCreatorService.buildTrelloCardEmail(message);
-        }
-        return "";
+    public MimeMessagePreparator createTaskMimeMessage(final Mail mail) {
+        return mimeMessage -> {
+            MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage);
+            messageHelper.setTo(mail.getMailTo());
+            messageHelper.setSubject(mail.getSubject());
+            messageHelper.setText(mailCreatorService.buildTaskListEmail(mail.getMessage()), true);
+        };
     }
 
     private SimpleMailMessage createMailMessage(final Mail mail) {
         SimpleMailMessage mailMessage = new SimpleMailMessage();
         mailMessage.setTo(mail.getMailTo());
-        Optional.ofNullable(mail.getToCc()).ifPresent(mailMessage::setCc);
         mailMessage.setSubject(mail.getSubject());
-        mailMessage.setText(mail.getMessage());
-        return mailMessage;
+        mailMessage.setText(mailCreatorService.buildTrelloCardEmail(mail.getMessage()));
+//        if (mailMessage.getCc() != null) {
+ //       mailMessage.setCc(mail.getToCc());
+ //       }
+        return  mailMessage;
     }
 }

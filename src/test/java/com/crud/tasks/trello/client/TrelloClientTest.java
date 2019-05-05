@@ -1,7 +1,6 @@
 package com.crud.tasks.trello.client;
 
 import com.crud.tasks.domain.CreatedTrelloCardDto;
-import com.crud.tasks.domain.TrelloBadgesDto;
 import com.crud.tasks.domain.TrelloBoardDto;
 import com.crud.tasks.domain.TrelloCardDto;
 import com.crud.tasks.trello.config.TrelloConfig;
@@ -18,7 +17,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -33,25 +32,21 @@ public class TrelloClientTest {
     @Mock
     private TrelloConfig trelloConfig;
 
-    @Mock
-    private TrelloBadgesDto trelloBadgesDto;
-
     @Before
     public void init() {
+        when(trelloConfig.getTrelloUsername()).thenReturn("dziubinski");
         when(trelloConfig.getTrelloApiEndpoint()).thenReturn("http://test.com");
         when(trelloConfig.getTrelloAppKey()).thenReturn("test");
         when(trelloConfig.getTrelloToken()).thenReturn("test");
-        when(trelloConfig.getTrelloUsername()).thenReturn("mateuszdziubinski");
     }
 
     @Test
     public void shouldFetchTrelloBoards() throws URISyntaxException {
-
         //Given
         TrelloBoardDto[] trelloBoards = new TrelloBoardDto[1];
         trelloBoards[0] = new TrelloBoardDto("test_id", "test_board", new ArrayList<>());
 
-        URI uri = new URI("http://test.com/members/paulinakuzmicka/boards?key=test&token=test&fields=name,id&lists=all");
+        URI uri = new URI("http://test.com/members/dziubinski/boards?key=test&token=test&fields=name,id&lists=all");
 
         when(restTemplate.getForObject(uri, TrelloBoardDto[].class)).thenReturn(trelloBoards);
 
@@ -67,25 +62,25 @@ public class TrelloClientTest {
 
     @Test
     public void shouldCreateCard() throws URISyntaxException {
-        //Given
+        // Given
         TrelloCardDto trelloCardDto = new TrelloCardDto(
                 "Test task",
                 "Test Description",
                 "top",
-                "test_id");
+                "test_id"
+        );
 
         URI uri = new URI("http://test.com/cards?key=test&token=test&name=Test%20task&desc=Test%20Description&pos=top&idList=test_id");
 
-        CreatedTrelloCardDto createdTrelloCardDto = new CreatedTrelloCardDto(
+        CreatedTrelloCardDto createdTrelloCard = new CreatedTrelloCardDto(
                 "1",
                 "Test task",
-                "http://test.com",
-                trelloBadgesDto
+                "http://test.com"
         );
 
-        when(restTemplate.postForObject(uri, null, CreatedTrelloCardDto.class)).thenReturn(createdTrelloCardDto);
+        when(restTemplate.postForObject(uri, null, CreatedTrelloCardDto.class)).thenReturn(createdTrelloCard);
 
-        //When
+        // When
         CreatedTrelloCardDto newCard = trelloClient.createNewCard(trelloCardDto);
 
         //Then
@@ -95,17 +90,26 @@ public class TrelloClientTest {
     }
 
     @Test
-    public void shouldReturnEmptyList() throws URISyntaxException {
+    public void shouldReturnEmptyList() throws URISyntaxException{
+        //Given
+        TrelloBoardDto[] trelloBoards = new TrelloBoardDto[1];
+        trelloBoards[0] = new TrelloBoardDto("test_id", "test_board", new ArrayList<>());
 
-        //given
-        URI uri = new URI("http://test.com/members/paulinakuzmicka/boards?key=test&token=test&fields=name,id&lists=all");
+        URI uri = new URI("http://test.com/cards?key=test&token=test&name=Test%20task&desc=Test%20Description&pos=top&idList=test_id");
+
+        CreatedTrelloCardDto createdTrelloCard = new CreatedTrelloCardDto(
+                "1",
+                "Test task",
+                "http://test.com"
+        );
 
         when(restTemplate.getForObject(uri, TrelloBoardDto[].class)).thenReturn(null);
 
-        //when
+        //When
         List<TrelloBoardDto> fetchedTrelloBoards = trelloClient.getTrelloBoards();
 
-        //then
+        //Then
         assertEquals(0, fetchedTrelloBoards.size());
     }
+
 }

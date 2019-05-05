@@ -1,15 +1,16 @@
-package com.crud.tasks.domain;
+package com.crud.tasks.trello.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+@NoArgsConstructor
 @AllArgsConstructor
 @Getter
-public class TrelloAttachmentsByTypeDto {
-
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class AttachmentsByType {
     @JsonProperty("trello")
-    private TrelloTrelloDto trello;
+    private Trello trello;
 }

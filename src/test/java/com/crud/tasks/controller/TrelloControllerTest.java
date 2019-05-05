@@ -1,11 +1,14 @@
 package com.crud.tasks.controller;
 
-import com.crud.tasks.domain.*;
+import com.crud.tasks.domain.CreatedTrelloCardDto;
+import com.crud.tasks.domain.TrelloBoardDto;
+import com.crud.tasks.domain.TrelloCardDto;
+import com.crud.tasks.domain.TrelloListDto;
 import com.crud.tasks.trello.facade.TrelloFacade;
 import com.google.gson.Gson;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -26,6 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(TrelloController.class)
+
 public class TrelloControllerTest {
 
     @Autowired
@@ -40,11 +44,10 @@ public class TrelloControllerTest {
         List<TrelloBoardDto> trelloBoards = new ArrayList<>();
         when(trelloFacade.fetchTrelloBoards()).thenReturn(trelloBoards);
 
-        //When & Then
-        mockMvc.perform(get("/v1/trello/boards").contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().is(200))
+        // When & Then
+        mockMvc.perform(get("/v1/trello/getTrelloBoards").contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().is(200)) //or isOk
                 .andExpect(jsonPath("$", hasSize(0)));
-
     }
 
     @Test
@@ -58,14 +61,14 @@ public class TrelloControllerTest {
 
         when(trelloFacade.fetchTrelloBoards()).thenReturn(trelloBoards);
 
-        //When & Then
-        mockMvc.perform(get("/v1/trello/boards").contentType(MediaType.APPLICATION_JSON))
+        // When & Then
+        mockMvc.perform(get("/v1/trello/getTrelloBoards").contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                //Trello board fields
+                // Trello board fields
                 .andExpect(jsonPath("$", hasSize(1)))
                 .andExpect(jsonPath("$[0].id", is("1")))
                 .andExpect(jsonPath("$[0].name", is("Test Task")))
-                //Trello list fields
+                // Trello list fields
                 .andExpect(jsonPath("$[0].lists", hasSize(1)))
                 .andExpect(jsonPath("$[0].lists[0].id", is("1")))
                 .andExpect(jsonPath("$[0].lists[0].name", is("Test List")))
@@ -79,36 +82,24 @@ public class TrelloControllerTest {
                 "Test",
                 "Test description",
                 "top",
-                "1"
-        );
-
+                "1");
         CreatedTrelloCardDto createdTrelloCardDto = new CreatedTrelloCardDto(
                 "323",
                 "Test",
-                "http://test.com",
-                new TrelloBadgesDto(
-                        5,
-                        new TrelloAttachmentsByTypeDto(
-                                new TrelloTrelloDto(
-                                        8,
-                                        6
-                                )
-                        )
-                )
+                "http://test.com"
         );
-
-        when(trelloFacade.createCard(ArgumentMatchers.any(TrelloCardDto.class))).thenReturn(createdTrelloCardDto);
-
+        when(trelloFacade.createCard(Mockito.any(TrelloCardDto.class))).thenReturn(createdTrelloCardDto);
         Gson gson = new Gson();
-        String jsonContent=gson.toJson(trelloCardDto);
-
-        //When & then
-        mockMvc.perform(post("/v1/trello/cards")
+        String jsonContent = gson.toJson(trelloCardDto);
+        //When&Then
+        mockMvc.perform(post("/v1/trello/createTrelloCard")
                 .contentType(MediaType.APPLICATION_JSON)
                 .characterEncoding("UTF-8")
                 .content(jsonContent))
-                .andExpect(jsonPath("$.id",is("323")))
-                .andExpect(jsonPath("$.name",is("Test")))
-                .andExpect(jsonPath("$.shortUrl",is("http://test.com")));
+                .andExpect(jsonPath("$.id", is("323")))
+                .andExpect(jsonPath("$.name", is("Test")))
+                .andExpect(jsonPath("$.shortUrl", is("http://test.com")));
+
     }
+
 }
